@@ -2,8 +2,10 @@
   <div id="app">
     <nav id="nav">
       <h3>Nav</h3>
-      <router-link :to="{ name: 'CustomerList'}">Customers</router-link> |
-      <router-link :to="{ name: 'About'}">About</router-link>
+      <router-link :to="{ name: `CustomerList`}">Customers</router-link> |
+      <router-link :to="{ name: `CustomerCreate` }">Create</router-link> |
+      <router-link :to="{ name: `About`}">About</router-link> 
+
     </nav>
     <div class="container">
       <section class="left">

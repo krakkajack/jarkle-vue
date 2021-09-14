@@ -7,6 +7,10 @@
 
 export default {
   props: ["customer"],
+
+  computed: {
+
+  }
 }
 </script>
 

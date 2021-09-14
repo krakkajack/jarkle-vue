@@ -1,7 +1,7 @@
 <template>
   <router-link
     class="event-link"
-    :to="{ name: 'CustomerDetails', params: {id: customer.id}}">
+    :to="{ name: `CustomerDetails`, params: {id: customer.id}}">
     <div class="customer-card">
       <h4>{{ customer.title }}</h4>
       <span>{{ customer.date }}</span>

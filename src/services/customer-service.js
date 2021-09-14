@@ -20,4 +20,8 @@ export default {
     return apiClient.get("/events/" + id) // change back to customers
   },
 
+  postCustomer(cust) { // new post request
+    return apiClient.post("/events", cust)
+  },
+
 }

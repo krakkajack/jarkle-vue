@@ -3,14 +3,14 @@
     <CustomerCard v-for="cust in customers" :key="cust.id" :customer="cust" />
     <div class="container">
       <router-link id="page-prev"
-        :to="{ name: 'CustomerList', query: { page: page - 1 }}"
+        :to="{ name: `CustomerList`, query: { page: page - 1 }}"
         rel="prev"
         v-if="page != 1">&#60; Previous
       </router-link>
       <div class="space">
       </div>
       <router-link id="page-next"
-        :to="{ name: 'CustomerList', query: { page: page + 1 }}"
+        :to="{ name: `CustomerList`, query: { page: page + 1 }}"
         rel="next"
         v-if="hasNextPage">Next &#62;
       </router-link>
@@ -19,7 +19,9 @@
 </template>
 
 <script>
-import CustomerService from "@/services/customer-service.js";
+//import store from "@/store";
+import { watchEffect } from "vue";
+
 import CustomerCard from "@/components/CustomerCard.vue";
 
 export default {
@@ -29,43 +31,26 @@ export default {
     CustomerCard,
   },
 
-  data() {
-    return {
-      customers: null,
-      totalCustomers: 0
-
-    }
-  },
-
-  beforeRouteEnter(routeTo, routeFrom, next) {
-    CustomerService.getCustomers(2, parseInt(routeTo.query.page) || 1)
-    .then(response => {
-      next(comp => {
-        comp.customers = response.data;
-        comp.totalCustomers = response.headers["x-total-count"];
+  created() {
+    watchEffect( () => {
+      let startFrom = this.page;
+      this.$store.dispatch("fetchCustomers", startFrom)
+      .catch(error => {
+        this.$router.push({
+          name: "ErrorDisplay",
+          params: { error: error },
+        })
       })
     })
-    .catch(error => {
-      console.log(error);
-      next({ name: "NetworkError" })
-    })
-  },
-
-  beforeRouteUpdate(routeTo) {
-    return CustomerService.getCustomers(2, parseInt(routeTo.query.page) || 1)
-      .then(response => {
-        this.customers = response.data
-        this.totalCustomers = response.headers['x-total-count']
-      })
-      .catch(() => {
-        return { name: 'NetworkError' }
-      })
   },
 
   computed: {
     hasNextPage() {
-      let totalPages = Math.ceil(this.totalCustomers / 2);
+      let totalPages = Math.ceil(this.$store.state.totalCustomers / 2);
       return this.page < totalPages;
+    },
+    customers() {
+      return this.$store.state.customers
     }
   }
 };

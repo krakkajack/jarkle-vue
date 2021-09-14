@@ -1,25 +1,41 @@
 <template>
-  <div v-if="GStore.customer">
-    <h1>{{ GStore.customer.title }}</h1>
-    <div id="flashMessage" v-if="GStore.flashMessage">
-      {{ GStore.flashMessage }}
+  <div v-if="customer">
+    <h1>{{ customer.title }}</h1>
+    <div id="flashMessage" v-if="$store.state.flashMessage">
+      {{ $store.state.flashMessage }}
     </div>
     <nav>
-      <router-link :to="{ name: 'CustomerDetails' }">Details</router-link>
+      <router-link :to="{ name: `CustomerDetails` }">Details</router-link>
       |
-      <router-link :to="{ name: 'CustomerRegister' }">Register</router-link>
+      <router-link :to="{ name: `CustomerRegister` }">Register</router-link>
       |
-      <router-link :to="{ name: 'CustomerEdit' }">Edit</router-link>
+      <router-link :to="{ name: `CustomerEdit` }">Edit</router-link>
     </nav>
-    <router-view :customer="GStore.customer" />
+    <router-view :customer="customer" />
   </div>
 </template>
 
 <script>
 
 export default {
-  inject: ["GStore"],
-};
+  props: ["id"],
+
+  created(){
+    this.$store.dispatch("fetchOneCustomer", this.id)
+    .catch(error => {
+      this.$router.push({
+        name: "ErrorDisplay",
+        params: { error: error },
+      })
+    })
+  },
+
+  computed: {
+    customer() {
+      return this.$store.state.currentCustomer;
+    },
+  },
+}
 </script>
 
 <style>

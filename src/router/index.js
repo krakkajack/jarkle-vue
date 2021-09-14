@@ -1,17 +1,17 @@
 // .src/router/index.js
 
 import { createRouter, createWebHistory } from "vue-router";
-import GStore from "@/store";
+import store from "@/store";
 
-import CustomerService from "@/services/customer-service";
-import CustomerList from "@/views/CustomerList.vue";
+import CustomerList from "@/views//customer/List.vue";
+import CustomerCreate from "@/views/customer/Create.vue";
 import CustomerLayout from "@/views/customer/Layout.vue";
 import CustomerDetails from "@/views/customer/Details.vue";
 import CustomerRegister from "@/views/customer/Register.vue";
 import CustomerEdit from "@/views/customer/Edit.vue";
 import About from "@/views/About.vue";
+import ErrorDisplay from "@/views/ErrorDisplay.vue";
 import NotFound from "@/views/NotFound.vue";
-import NetworkError from "@/views/NetworkError.vue";
 import NProgress from "nprogress";
 
 const routes = [
@@ -27,22 +27,6 @@ const routes = [
     name: "CustomerLayout",
     props: true,
     component: CustomerLayout,
-    beforeEnter: to => {
-      return CustomerService.getCustomer(to.params.id)
-      .then((response) => {
-        GStore.customer = response.data;
-      })
-      .catch((error) => {
-        if (error.response && error.response.status == 404) {
-          return {
-            name: "404Resource",
-            params: { resource: "customer"}
-          }
-        } else {
-          return { name: "NetworkError" }
-        }
-      })
-    },
     children: [
       {
         path: "",
@@ -54,19 +38,26 @@ const routes = [
         name: "CustomerRegister",
         component: CustomerRegister,
       },
-      
+
       {
         path: "edit",
         name: "CustomerEdit",
         component: CustomerEdit,
-        meta: { requireAuth: true }
+        meta: { requireAuth: false }
       },
-    ]
+    ],
   },
+  
+  {
+      path: "/customerCreate",
+      name: "CustomerCreate",
+      component: CustomerCreate
+  },
+  
 
   // Optional re-direct code in case of misspelling etc
   // {
-  //   path: '/customers/:afterCustomers(.*)',
+  //   path: "/customers/:afterCustomers(.*)",
   //   redirect: to => {
   //     return { path: "/customer/" = to.params.afterCustomers }
   //   }
@@ -90,17 +81,11 @@ const routes = [
   },
 
   {
-    path: "/404/:resource",
-    name: "404Resource",
-    component: NotFound,
-    props: true
+    path: "/error/:error",
+    name: "ErrorDisplay",
+    props: true,
+    component: ErrorDisplay,
   },
-
-  {
-    path: "/network-error",
-    name: "NetworkError",
-    component: NetworkError
-  }
 ];
 
 const router = createRouter({
@@ -120,9 +105,9 @@ router.beforeEach((to, from) => {
 
   const notAuthorised = true;
   if (to.meta.requireAuth && notAuthorised) {
-    GStore.flashMessage = "Sorry, not authorised";
+    store.dispatch("setMessage", "Sorry, not authorised");
     setTimeout( () => {
-      GStore.flashMessage = "";
+      store.dispatch("setMessage", "");
     }, 3000);
     if (from.href) {
       return false
